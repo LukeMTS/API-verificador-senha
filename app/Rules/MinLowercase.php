@@ -25,7 +25,7 @@ class MinLowercase implements InvokableRule
     {
         if (mb_strlen(preg_replace('![^a-z]+!', '', $value)) < $this->minLowercase)
         {
-            $fail('The :attribute must be lowercase.');
+            $fail('minLowercase');
         }
     }
 

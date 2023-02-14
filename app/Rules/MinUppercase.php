@@ -24,7 +24,7 @@ class MinUppercase implements InvokableRule
     public function __invoke($attribute, $value, $fail)
     {
         if (mb_strlen(preg_replace('![^A-Z]+!', '', $value)) < $this->minDigits) {
-            $fail('The :attribute must be uppercase.');
+            $fail('minUppercase');
         }
     }
 }
