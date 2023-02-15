@@ -6,19 +6,14 @@ use App\Rules\MinDigit;
 use App\Rules\MinLowercase;
 use App\Rules\MinSpecialChars;
 use App\Rules\MinUppercase;
+use App\Rules\NoRepeated;
 use Illuminate\Http\Request;
-use App\Models\Verify;
-use App\Http\Requests\VerifyRequest;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Password;
 
 class VerifyController extends Controller
 {
     public function verify(Request $request)
     {
-        // evita letras repetidas seguidas
-        $allRules = ['not_regex:/(.)\1{1,}/'];
-
         $requestRules = $request->rules;
 
         foreach ($requestRules as $key => $rule) {
@@ -38,15 +33,24 @@ class VerifyController extends Controller
                 case 'minSpecialChars':
                     $allRules[] = new MinSpecialChars($rule['value']);
                     break;
+                case 'noRepeated':
+                    $allRules[] = 'not_regex:/(.)\1{1,}/';
+                    break;                    
             }
         }
 
         $validator = Validator::make($request->all(), [
             'password' => $allRules
-        ]);
+        ], [
+            'not_regex'   =>  'noRepeated',
+        ]
+        );
+
+        $status = $validator->fails();
 
         return response()->json(
-            ['verify' => !$validator->fails(), 'noMatch' => $validator->errors()->get('password')]
+            ['verify' => !$status, 'noMatch' => $validator->errors()->get('password')],
+            !$status ? 200 : 400
         );
     }
 }
